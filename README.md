@@ -22,6 +22,15 @@ loopback-only, which is the usual reason a private Ollama service on Railway
 reports healthy while the sibling container talking to it gets connection
 refused.
 
+**Threads are sized to the container, not to the host.** A container reports the
+host's core count, so llama-server auto-detects dozens of threads and
+oversubscribes the cgroup quota it actually has. Measured on Railway with
+`llama3.2:1b` on 2026-07-31: **1.11 tok/s** with auto-detection against
+**87 tok/s** with the count capped at the plan's vCPU — the same box, the same
+model, ~78x. `railway-entrypoint.sh` reads the cgroup quota and exports
+`LLAMA_ARG_THREADS`, which llama-server picks up for every model, not just the
+preloaded one. Set `LLAMA_ARG_THREADS` yourself to override it.
+
 `OLLAMA_PRELOAD_MODEL` (default `llama3.2:1b`) is pulled by
 `railway-entrypoint.sh` **after** the server is already listening, so the service
 is reachable immediately and the model shows up in the list when the download

@@ -1,6 +1,11 @@
 # Railway-tuned Ollama image.
 #
-# Two things this changes about a stock `ollama/ollama` deployment on Railway:
+# Three things this changes about a stock `ollama/ollama` deployment on Railway:
+#
+#  0. Inference threads are sized to the container's CPU quota rather than to the
+#     host's core count, which is what a container actually reports. Measured on
+#     Railway with llama3.2:1b (2026-07-31): 1.11 tok/s auto-detected against
+#     87 tok/s capped. See railway-entrypoint.sh.
 #
 #  1. Every setting a deployer would otherwise have to type is baked in as ENV.
 #     Railway's `templateGenerate` keeps a template variable's default ONLY when
